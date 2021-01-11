@@ -46,7 +46,10 @@ def snapraid_command(command, args={}, *, allow_statuscodes=[]):
     """
     arguments = ["--conf", config["snapraid"]["config"]]
     for (k, v) in args.items():
-        arguments.extend(["--" + k, str(v)])
+        if v == "":
+            arguments.extend(["--" + k])
+        else:
+            arguments.extend(["--" + k, str(v)])
     p = subprocess.Popen(
         [config["snapraid"]["executable"], command] + arguments,
         stdout=subprocess.PIPE,
@@ -279,7 +282,9 @@ def run():
     else:
         logging.info("Running sync...")
         try:
-            snapraid_command("sync")
+            snapraid_command("sync", {
+                "force-zero": "",
+            })
         except subprocess.CalledProcessError as e:
             logging.error(e)
             finish(False)
